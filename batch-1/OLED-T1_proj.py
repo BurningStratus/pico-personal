@@ -32,6 +32,7 @@ class Symbol:
         self.in_2 = input2
     
     def execute(self):
+        # main part
         self.printer()
         self.check_border()
         self.check_input()
@@ -43,6 +44,7 @@ class Symbol:
         return
         
     def check_border(self):
+        ### checks the borders and restricts the movement.
         if self.position_x >= self.border_x or self.position_x <= 0 or self.position_y >= self.border_y or self.position_y >= 0:
             if self.position_x > 105:
                 self.position_x = 105
@@ -53,7 +55,6 @@ class Symbol:
         return
     
     def check_input(self):
-        print("CHECKING INPUT")
         print(self.in_1, self.in_2)
         self.in_1 = std0.value()
         self.in_2 = std1.value()
@@ -77,8 +78,6 @@ class Symbol:
         self.position_x -= self.step
         
         self.check_border()
-        
-        print(self.position_x, self.position_y)
         return
 
 ufo = Symbol(std0, std1)
