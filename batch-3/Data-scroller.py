@@ -98,9 +98,9 @@ class DataHandler:
 	def scroller(self, data):
 		if self.rotary.fifo.has_data():
 
-			x = self.rotary.get()
-			if x > 0:
-				self.position += 10
+			x = self.rotary.fifo.get()
+			if x != 0:
+				
 				self.add_to_buf(data.get())
 		else:
 			pass
@@ -109,7 +109,7 @@ class DataHandler:
 	def add_to_buf(self, data):
 		# oled.text(str(data), 2, self.curr_pos, 1)
 		
-		print(self.curr_pos)	
+		# print(self.curr_pos)	
 
 		if self.curr_pos % 6 == 0 and self.curr_pos > 30:
 			self.curr_pos -= 10
@@ -132,7 +132,7 @@ for i in range(250):
 
 print("__")
 while True:
-	data_peaks = data.get()
-	data_handler.add_to_buf(data_peaks)
-	time.sleep(0.5)
+	# data_peaks = data.get()
+	data_handler.scroller(data)
+	time.sleep(0.02)
 	
