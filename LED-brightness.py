@@ -6,8 +6,6 @@ from fifo import Fifo
 import micropython
 micropython.alloc_emergency_exception_buf(200)
 
-print("__")
-
 class Encoder:
     def __init__(self, rot_a, rot_b, intrrpt):
         self.a = Pin(rot_a, mode = Pin.IN, pull = Pin.PULL_UP)
@@ -16,28 +14,18 @@ class Encoder:
         self.a.irq(handler = self.handler, trigger = Pin.IRQ_RISING, hard = True)
         
         self.led = PWM(Pin(20, Pin.OUT), freq=140, duty_u16=0)
-        self.condition = False 
-
+        self.condition = True
+        
         self.analog = 0
         
         self.interrupt = Pin(intrrpt, mode = Pin.IN, pull = Pin.PULL_UP)
-        self.interrupt.irq(handler = self.interrupt_handler, trigger = self.interrupt.IRQ_RISING, hard = True)
+        self.interrupt.irq(handler = self.interrupt_handler, trigger = self.interrupt.IRQ_FALLING, hard = True)
         
-    def bounce_filter(self):
-	
-
-	if self.condition:
-		sleep(0.05)
-		if self.condition:
-			return True	
-		else:
-			return False
-	else:
-		return False
-	
     def interrupt_handler(self, pin):
-	self.condition = not self.condition
-	
+        sleep(0.05)
+        
+        if not self.interrupt.value():
+            self.condition = not self.condition
         return
     
     def handler(self, pin):      
@@ -55,7 +43,7 @@ class Encoder:
     def rotary_handler(self):
         if self.fifo.has_data():
             x = self.fifo.get()
-
+            
             if self.condition:
                 if x == 1 and self.analog < 1000:
                     self.analog += 100
@@ -67,9 +55,9 @@ class Encoder:
         return
     
     def led_condition(self):
-        if self.condition and self.bounce_filter():
+        if self.condition:
             self.led.duty_u16(self.analog)
-        elif not self.condition and not self.bounce_filter():
+        elif not self.condition:
             self.led.duty_u16(0)
         return
         
@@ -82,6 +70,7 @@ rot = Encoder(10, 11, 12)
 led = PWM(Pin(20, Pin.OUT), duty_u16=0, freq=100)
 
 while True:
+    sleep(0.05)
     rot.rotary_handler()
     rot.led_condition()
     
